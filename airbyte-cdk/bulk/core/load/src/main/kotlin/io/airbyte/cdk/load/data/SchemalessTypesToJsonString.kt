@@ -53,3 +53,10 @@ class SchemalessValuesToJsonString : AirbyteValueIdentityMapper() {
         return super.mapUnion(value, schema, context)
     }
 }
+
+object SchemalessTypesToStringType : AirbyteSchemaIdentityMapper {
+    override fun mapArrayWithoutSchema(schema: ArrayTypeWithoutSchema) = StringType
+    override fun mapObjectWithEmptySchema(schema: ObjectTypeWithEmptySchema) = StringType
+    override fun mapObjectWithoutSchema(schema: ObjectTypeWithoutSchema) = StringType
+    override fun mapUnknown(schema: UnknownType) = StringType
+}
