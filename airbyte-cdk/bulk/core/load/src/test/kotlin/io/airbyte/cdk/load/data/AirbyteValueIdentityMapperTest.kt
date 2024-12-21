@@ -19,10 +19,13 @@ class AirbyteValueIdentityMapperTest {
                 .with(StringValue("a"), StringType)
                 .with(IntegerValue(1), IntegerType)
                 .with(BooleanValue(true), BooleanType)
-                .with(TimestampValue("2021-01-01T12:00:00Z"), TimestampTypeWithTimezone)
-                .with(TimestampValue("2021-01-01T12:00:00"), TimestampTypeWithoutTimezone)
-                .with(TimeValue("12:00:00Z"), TimeTypeWithTimezone)
-                .with(TimeValue("12:00:00"), TimeTypeWithoutTimezone)
+                .with(TimestampWithTimezoneValue("2021-01-01T12:00:00Z"), TimestampTypeWithTimezone)
+                .with(
+                    TimestampWithoutTimezoneValue("2021-01-01T12:00:00"),
+                    TimestampTypeWithoutTimezone
+                )
+                .with(TimeWithTimezoneValue("12:00:00Z"), TimeTypeWithTimezone)
+                .with(TimeWithoutTimezoneValue("12:00:00"), TimeTypeWithoutTimezone)
                 .with(DateValue("2021-01-01"), DateType)
                 .withRecord()
                 .with(
