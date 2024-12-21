@@ -4,12 +4,13 @@
 
 package io.airbyte.cdk.load.data
 
+import io.airbyte.cdk.load.message.Meta
 import io.airbyte.cdk.load.test.util.Root
 import io.airbyte.cdk.load.test.util.SchemaRecordBuilder
 import io.airbyte.cdk.load.test.util.ValueTestBuilder
-import io.airbyte.protocol.models.v0.AirbyteRecordMessageMetaChange
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertAll
 
 class AirbyteValueIdentityMapperTest {
     @Test
@@ -56,13 +57,9 @@ class AirbyteValueIdentityMapperTest {
                 .build()
         val mapper = AirbyteValueIdentityMapper()
         val (values, changes) = mapper.map(inputValues, inputSchema)
-        Assertions.assertTrue(changes.isNotEmpty())
-        Assertions.assertTrue((values as ObjectValue).values["bad"] is NullValue)
-        Assertions.assertTrue(changes[0].field == "bad")
-        Assertions.assertTrue(changes[0].change == AirbyteRecordMessageMetaChange.Change.NULLED)
-        Assertions.assertTrue(
-            changes[0].reason ==
-                AirbyteRecordMessageMetaChange.Reason.DESTINATION_SERIALIZATION_ERROR
+        assertAll(
+            { Assertions.assertEquals(emptyList<Meta.Change>(), changes) },
+            { Assertions.assertEquals(IntegerValue(1000), (values as ObjectValue).values["bad"]) },
         )
     }
 }
