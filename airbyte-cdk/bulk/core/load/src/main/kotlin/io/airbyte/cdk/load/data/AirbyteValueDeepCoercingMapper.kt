@@ -12,6 +12,8 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.OffsetTime
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 /**
@@ -117,7 +119,13 @@ class AirbyteValueDeepCoercingMapper : AirbyteValueIdentityMapper() {
         context: Context
     ): Pair<AirbyteValue, Context> =
         requireType<StringValue>(value, TimeTypeWithTimezone, context) {
-            TimeWithTimezoneValue(OffsetTime.parse(it.value, TIME_FORMATTER)) to context
+            val ot =
+                try {
+                    OffsetTime.parse(it.value, TIME_FORMATTER)
+                } catch (e: Exception) {
+                    LocalTime.parse(it.value, TIME_FORMATTER).atOffset(ZoneOffset.UTC)
+                }
+            TimeWithTimezoneValue(ot) to context
         }
 
     override fun mapTimeWithoutTimezone(
@@ -133,8 +141,7 @@ class AirbyteValueDeepCoercingMapper : AirbyteValueIdentityMapper() {
         context: Context
     ): Pair<AirbyteValue, Context> =
         requireType<StringValue>(value, TimestampTypeWithTimezone, context) {
-            TimestampWithTimezoneValue(OffsetDateTime.parse(it.value, DATE_TIME_FORMATTER)) to
-                context
+            TimestampWithTimezoneValue(offsetDateTime(it)) to context
         }
 
     override fun mapTimestampWithoutTimezone(
@@ -142,9 +149,18 @@ class AirbyteValueDeepCoercingMapper : AirbyteValueIdentityMapper() {
         context: Context
     ): Pair<AirbyteValue, Context> =
         requireType<StringValue>(value, TimestampTypeWithoutTimezone, context) {
-            TimestampWithoutTimezoneValue(LocalDateTime.parse(it.value, DATE_TIME_FORMATTER)) to
-                context
+            TimestampWithoutTimezoneValue(offsetDateTime(it).toLocalDateTime()) to context
         }
+
+    private fun offsetDateTime(it: StringValue): OffsetDateTime {
+        val odt =
+            try {
+                ZonedDateTime.parse(it.value, DATE_TIME_FORMATTER).toOffsetDateTime()
+            } catch (e: Exception) {
+                LocalDateTime.parse(it.value, DATE_TIME_FORMATTER).atOffset(ZoneOffset.UTC)
+            }
+        return odt
+    }
 
     override fun mapUnion(
         value: AirbyteValue,
